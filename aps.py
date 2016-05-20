@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import sys
 import hashlib
 import logging
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import requests
 import simplejson
@@ -72,12 +72,13 @@ def insert2mongo(query_date=None):
     :param query_date: string, request query string, default is None,
     :return:
     """
-    host, port = '192.168.100.15', 27017
-    # host, port = '192.168.100.20', 27017
+    # host, port = '192.168.100.15', 27017
+    host, port = '192.168.100.20', 27017
+    today = str(date.today()).replace('-', '')
     request = 'http://54.223.52.50:8005/api/news/amazon/stat/data.json?date=%s'
 
     if query_date is None:
-        query_string = str(date.today()).replace('-', '')
+        query_string = today
     else:
         query_string = query_date
 
@@ -91,14 +92,18 @@ def insert2mongo(query_date=None):
 
         for site_key, _docs in to_python.iteritems():
             uid = md5(site_key + query_string)
-            _docs.update(site=site_key, uid=uid)
+            _docs.update(site=site_key, uid=uid, crt=datetime.now())
 
             if uid not in overall_uid:
                 collection.insert(_docs)
+            else:
+                if query_date == today:
+                    collection.remove({'uid': uid})
+                    collection.insert(_docs)
     except Exception as e:
         logging.info('Insert mongo error: type <{}>, msg <{}>'.format(e.__class__, e))
     else:
-        logging.info('\t<{}> query is success from amazon.')
+        logging.info('\t<{}> query is success from amazon.'.format(query_date))
     db.close()
 
 
@@ -110,7 +115,3 @@ if __name__ == '__main__':
         _date_range = get_date_range(*args)
         for _query_date in _date_range:
             insert2mongo(_query_date)
-
-
-
-
