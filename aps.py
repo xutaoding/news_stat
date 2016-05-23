@@ -75,7 +75,7 @@ def get_date_range(start, end):
     return date_range
 
 
-@app.scheduled_job(trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
+# @app.scheduled_job(trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
 def insert2mongo(query_date=None):
     """
     This task request `http://54.223.52.50:8005/api/news/amazon/stat/data.json`, query string: date=00000000,
@@ -122,6 +122,14 @@ def insert2mongo(query_date=None):
 if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
+        app.add_job(
+            insert2mongo,
+            trigger='cron',
+            hour='0',
+            minute='0',
+            second='0',
+            misfire_grace_time=5
+        )
         app.start()
     else:
         _date_range = get_date_range(*args)
