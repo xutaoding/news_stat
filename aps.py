@@ -86,7 +86,7 @@ def insert2mongo(query_date=None):
     """
     host, port = '192.168.100.15', 27017
     # host, port = '192.168.100.20', 27017
-    today = str(date.today()).replace('-', '')
+    today = str(date.today() - timedelta(days=1)).replace('-', '')
     request = 'http://54.223.52.50:8005/api/news/amazon/stat/data.json?date=%s'
 
     if query_date is None:
