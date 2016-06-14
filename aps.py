@@ -157,7 +157,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
         app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
-        app.add_job(count_with_corpus, trigger='cron', hour='15', minute='32', second='0', misfire_grace_time=5)
+        app.add_job(count_with_corpus, trigger='cron', hour='0', minute='05', second='0', misfire_grace_time=5)
         app.start()
     else:
         _date_range = get_date_range(*args)
