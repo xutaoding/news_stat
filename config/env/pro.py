@@ -9,3 +9,16 @@ PRO_LOG_HOST = '192.168.100.15'
 PRO_LOG_PORT = 27017
 PRO_LOG_DB = 'log'
 PRO_LOG_TABLE = 'news_stat'
+
+PRO_CORPUS_HOST = '192.168.100.20'
+PRO_CORPUS_PORT = 27017
+PRO_CORPUS_DB = 'py_crawl'
+PRO_CORPUS_TABLES = {
+    'guba': 'guba',
+    'jobs': 'jobs',
+    'weixin': 'weixin',
+    'xueqiu': 'xueqiu',
+    'zhihu': 'zhihu',
+    'baidu': 'baidu',
+    'comp_info': 'comp_info',
+}

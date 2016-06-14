@@ -22,4 +22,6 @@ urlpatterns = [
 
     url(r'^api/news/', include('apps.amazon_stat.urls', namespace='amazon')),
     url(r'^api/news/', include('apps.intranet_stat.urls', namespace='intranet')),
+
+    url(r'api/corpus/', include('apps.corpus.urls', namespace='corpus')),
 ]
