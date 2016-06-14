@@ -119,17 +119,45 @@ def insert2mongo(query_date=None):
     db.close()
 
 
+def count_with_corpus(query_date=None):
+    host, port = '192.168.100.15', 27017
+    today = str(date.today() - timedelta(days=1))
+    client = MongoClient(host, port)
+    collection = client.log.corpus_stat
+    query_string = today if query_date is None else query_date
+    overall_uid = {docs['uid'] for docs in collection.find({}, {'uid': 1})}
+
+    all_corpus = {'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻',
+                  'xuwqiu': u'雪球股票评论', 'guba': u'东方财富股吧股票评论', 'jobs': u'拉钩', 'comp': u'公司信息', }
+    corpus_base = 'http://192.168.250.207:7900/api/corpus/{corpus}/data.json?date={date}'
+
+    for corpus in all_corpus:
+        try:
+            uid = md5(corpus + query_string)
+            resp = requests.get(corpus_base.format(corpus=corpus, date=query_string), timeout=30)
+            to_python = simplejson.loads(resp.content)
+
+            if uid not in overall_uid:
+                key = query_string.replace('-', '')
+                data = {
+                    'dt': query_string,
+                    'uid': uid, 'crt': datetime.now(),
+                    'count': to_python[key],
+                    'cat': all_corpus[corpus]
+                }
+                collection.insert(data)
+        except Exception as e:
+            logging.info('Insert mongo <{}> error: type <{}>, msg <{}>'.format(host, e.__class__, e))
+        else:
+            logging.info('\t<{}> query is success from <{}> .'.format(query_date, host))
+    client.close()
+
+
 if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
-        app.add_job(
-            insert2mongo,
-            trigger='cron',
-            hour='0',
-            minute='0',
-            second='0',
-            misfire_grace_time=5
-        )
+        app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
+        app.add_job(count_with_corpus, trigger='cron', hour='15', minute='32', second='0', misfire_grace_time=5)
         app.start()
     else:
         _date_range = get_date_range(*args)
