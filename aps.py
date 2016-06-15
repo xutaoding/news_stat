@@ -120,6 +120,11 @@ def insert2mongo(query_date=None):
 
 
 def count_with_corpus(query_date=None):
+    """
+    Count comment crawled data from `eastmoney` guba, sogou weixin and so on
+    :param query_date: string, format 0000-00-00
+    :return:
+    """
     host, port = '192.168.100.15', 27017
     today = str(date.today() - timedelta(days=1))
     client = MongoClient(host, port)
@@ -153,13 +158,71 @@ def count_with_corpus(query_date=None):
     client.close()
 
 
+def get_count_with_news_category(query_date=None):
+    """
+    Count all news category from crawled news and just before analysis
+
+    A: to every day: http://54.223.52.50:8005/api/news/amazon/origin/data.json?date=20160615
+    B: to all news: http://54.223.52.50:8005/api/news/amazon/total/data.json
+    C: to all news source: http://54.223.52.50:8005/api/news/amazon/source/data.json
+
+    Note log database include `dif`, which is 0 indicate A, 1 indicate B, 2 indicate C
+
+    :param query_date: string, format 0000-00-00
+    :return:
+    """
+    host, port = '192.168.100.15', 27017
+    today = str(date.today() - timedelta(days=1))
+    client = MongoClient(host, port)
+    collection = client.log.category_stat
+
+    query_date = today.replace('-', '') if not query_date else query_date
+    dt = today if not query_date else '%s-%s-%s' % (query_date[:4], query_date[4:6], query_date[6:])
+
+    news_day_url = 'http://54.223.52.50:8005/api/news/amazon/origin/data.json?date={}'
+    news_total_url = 'http://54.223.52.50:8005/api/news/amazon/total/data.json'
+    news_source_url = 'http://54.223.52.50:8005/api/news/amazon/source/data.json'
+
+    try:
+        # 记录当天新闻分类的总数， 且这些新闻是在分析之前
+        response_news_day = requests.get(news_day_url.format(query_date), timeout=40).content
+        to_python_day = simplejson.loads(response_news_day)
+        to_python_day.update(dt=dt, dif=0, crt=datetime.now())
+        # collection.insert(to_python_day)
+
+        # 记录当天之前的所有新闻分类的总数， 且这些新闻是在分析之前
+        response_news_total = requests.get(news_total_url, timeout=60*3).content
+        to_python_total = simplejson.loads(response_news_total)
+        to_python_total.update(dt=dt, dif=1, crt=datetime.now())
+        collection.insert(to_python_total)
+
+        # 记录所有新闻分类的来源总数
+        response_news_source = requests.get(news_source_url, timeout=40).content
+        to_python_source = simplejson.loads(response_news_source)
+        to_python_source.update(dt=dt, dif=2, crt=datetime.now())
+
+        query = {'dif': 2}
+        if not collection.find_one(query):
+            collection.insert(to_python_source)
+        else:
+            collection.update(query, {'$set': to_python_source})
+    except Exception as e:
+        logging.info('Insert mongo <{} {}> error: type <{}>, msg <{}>'.format(host, 'category_stat', e.__class__, e))
+    else:
+        logging.info('\t<{} {}> query is success from <{}> .'.format('category_stat', query_date, host))
+    client.close()
+
+
 if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
         app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
         app.add_job(count_with_corpus, trigger='cron', hour='0', minute='05', second='0', misfire_grace_time=5)
+        app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='10', second='0', misfire_grace_time=5)
         app.start()
     else:
         _date_range = get_date_range(*args)
         for _query_date in _date_range:
-            insert2mongo(_query_date)
+            # insert2mongo(_query_date)
+            get_count_with_news_category(_query_date)
+            logging.info('Date <{}> search success!'.format(_query_date))
