@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import importlib
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -8,6 +9,7 @@ from tld import get_tld
 
 from eggs import failure_msg, Validation
 from config import SITE_NAME_MAP as _SNM, STOCK_CAT as _STOCK
+from config import ORIGIN_CATEGORY as _ORIGIN, NEWS_SOURCE as _SOURCE
 
 
 class StatBase(object):
@@ -41,7 +43,7 @@ class AmazonNewsStat(StatBase):
     def __init__(self, queryset, query_date):
         self.queryset = queryset
         self.query_date = query_date
-        super(AmazonNewsStat, self).__init__(query_date = query_date)
+        super(AmazonNewsStat, self).__init__(query_date=query_date)
 
     @staticmethod
     def convert_dt(date_s):
@@ -128,4 +130,41 @@ class QueryCatStat(StatBase):
             except(KeyError, ValueError):
                 pass
         return result
+
+
+class CrawlerNewsStat(StatBase):
+    cat_key = 'source'
+    source_path = 'config.base.name'
+
+    def __init__(self, queryset, query_date=None):
+        self.queryset = queryset
+        self.query_date = query_date
+
+        kwargs_date = {} if not query_date else {'query_date': self.query_date}
+        super(CrawlerNewsStat, self).__init__(**kwargs_date)
+
+    def get_crawler_news_stat(self):
+        cat_count_dict = defaultdict(int)
+        status_info = self._valid_date()
+
+        if status_info:
+            return status_info
+
+        for docs in self.queryset:
+            try:
+                cat = _ORIGIN.get(docs[self.cat_key])
+            except KeyError:
+                pass
+
+            if not cat:
+                continue
+            cat_count_dict[cat] += 1
+        return cat_count_dict or {key: 0 for key in _ORIGIN.itervalues() if key}
+
+    def get_news_source_count(self):
+        name = 'NEWS_SOURCE'
+        import_path = self.source_path
+        module = importlib.import_module(import_path)
+
+        return getattr(module, name, None) or _SOURCE
 

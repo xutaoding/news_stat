@@ -5,13 +5,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from eggs import get_date_range
-from models import NewsAnalysis
-from api import AmazonNewsStat, QueryCatStat, StatBase
+from models import NewsAnalysis, CrawlerNews
+from api import StatBase
+from api import AmazonNewsStat, QueryCatStat
+from api import CrawlerNewsStat
 
 
 class NewsBase(APIView):
     model_class = NewsAnalysis
-    default_date = str(date.today()).replace('-', '')
+
+    @property
+    def default_date(self):
+        return str(date.today()).replace('-', '')
 
     @property
     def fields(self):
@@ -77,4 +82,36 @@ class QueryCatView(NewsBase):
 
         new_queryset = [{k: docs[k] for k in self.fields} for docs in queryset]
         data = QueryCatStat(new_queryset, query_cat, query_start, query_end).get_cat_stat()
+        return Response(data)
+
+
+class CrawlerNewsView(NewsBase):
+    model_class = CrawlerNews
+
+    def get(self, request):
+        expected_param = 'date'
+        info = self._valid_params(request.GET.keys(), expected_params=(expected_param, ))
+
+        if info is not None:
+            return Response(info)
+
+        fields = self.fields
+        fields.remove('id')
+
+        query_date = request.GET.get(expected_param)
+        obj_kwargs = {'d': query_date} if query_date else {}
+        queryset = self.model_class.objects.filter(**obj_kwargs).fields(**{k: 1 for k in fields})
+
+        new_queryset = [{k: docs[k] for k in fields} for docs in queryset]
+        data = CrawlerNewsStat(new_queryset, query_date).get_crawler_news_stat()
+        return Response(data)
+
+
+class NewsSourceView(NewsBase):
+    model_class = CrawlerNews
+
+    def get(self, request):
+        print 1000000000000
+        data = CrawlerNewsStat(queryset=[]).get_news_source_count()
+        print data
         return Response(data)

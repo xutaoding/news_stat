@@ -3,6 +3,7 @@ PRO_NEWS_HOST = '10.0.250.10'
 PRO_NEWS_PORT = 27017
 PRO_NEWS_DB = 'news'
 PRO_NEWS_TABLE = 'hotnews_analyse'
+PRO_CRAWLER_NEWS_TABLE = 'crawler_news'
 
 # Pro Log mongo settings
 PRO_LOG_HOST = '192.168.100.15'

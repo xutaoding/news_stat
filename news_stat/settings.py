@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from config import NEWS_HOST, NEWS_PORT, NEWS_DB, NEWS_TABLE
+from config import NEWS_HOST, NEWS_PORT, NEWS_DB, NEWS_TABLE, CRAWLER_NEWS_TABLE
 from config import LOG_HOST, LOG_PORT, LOG_DB, LOG_TABLE
 from config import CORPUS_HOST, CORPUS_DB, CORPUS_PORT, CORPUS_TABLES
 

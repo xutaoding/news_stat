@@ -3,6 +3,7 @@ DEV_NEWS_HOST = '192.168.250.208'
 DEV_NEWS_PORT = 27017
 DEV_NEWS_DB = 'news'
 DEV_NEWS_TABLE = 'hotnews_analyse'
+DEV_CRAWLER_NEWS_TABLE = 'crawler_news'
 
 # Dev Log mongo settings
 DEV_LOG_HOST = '192.168.100.20'
