@@ -188,7 +188,7 @@ def get_count_with_news_category(query_date=None):
         response_news_day = requests.get(news_day_url.format(query_date), timeout=40).content
         to_python_day = simplejson.loads(response_news_day)
         to_python_day.update(dt=dt, dif=0, crt=datetime.now())
-        # collection.insert(to_python_day)
+        collection.insert(to_python_day)
 
         # 记录当天之前的所有新闻分类的总数， 且这些新闻是在分析之前
         response_news_total = requests.get(news_total_url, timeout=60*3).content
