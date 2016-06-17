@@ -115,7 +115,7 @@ def insert2mongo(query_date=None):
     except Exception as e:
         logging.info('Insert mongo error: type <{}>, msg <{}>'.format(e.__class__, e))
     else:
-        logging.info('\t<{}> query is success from amazon.'.format(query_date))
+        logging.info('\t<{}> query is success from amazon.'.format(query_string))
     db.close()
 
 
@@ -191,10 +191,10 @@ def get_count_with_news_category(query_date=None):
         collection.insert(to_python_day)
 
         # 记录当天之前的所有新闻分类的总数， 且这些新闻是在分析之前
-        response_news_total = requests.get(news_total_url, timeout=60*3).content
-        to_python_total = simplejson.loads(response_news_total)
-        to_python_total.update(dt=dt, dif=1, crt=datetime.now())
-        collection.insert(to_python_total)
+        # response_news_total = requests.get(news_total_url, timeout=60*3).content
+        # to_python_total = simplejson.loads(response_news_total)
+        # to_python_total.update(dt=dt, dif=1, crt=datetime.now())
+        # collection.insert(to_python_total)
 
         # 记录所有新闻分类的来源总数
         response_news_source = requests.get(news_source_url, timeout=40).content
