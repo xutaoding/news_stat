@@ -21,16 +21,16 @@ class ViewBase(APIView):
 
     def get(self, request):
         # date: 表示根据给定日期来统计这天的总数, 默认rtype为1
-        # rtype: 2 表示统计之前所有到当前的总数， 与date无关
+        # rtype: 2 表示统计之前所有到当前的总数
         query_date = request.GET.get('date', self.default_date)
         rtype = request.GET.get('rtype', '1')
         query_params = query_date.replace('-', '')
 
-        if rtype == '1' or query_params:
+        if rtype == '1' and query_params:
             queryset = self.model_class.objects.filter(ct__startswith=query_params)
 
-        if rtype == '2':
-            queryset = self.model_class.objects.filter()
+        if rtype == '2' and query_date:
+            queryset = self.model_class.objects.filter(ct__lte=query_params + '235959')
         return Response({query_params: queryset.count()})
 
 
