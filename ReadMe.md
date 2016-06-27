@@ -17,3 +17,12 @@ start:
 (54.223.52.50)
 # /opt/interface/uwsgi/src/uwsgi-2.0.12/uwsgi --http :8005 --chdir /opt/interface/news_stat --module news_stat.django_uwsgi --pythonpath /opt/venv2.7.10/lib64/python2.7/site-packages
 /opt/interface/uwsgi/src/uwsgi-2.0.12/uwsgi --http :8005 --chdir /opt/interface/news_stat --module news_stat.django_uwsgi -H /opt/venv2.7.10
+
+部署环境：
+1：新闻方面部署在 54.223.52.50 上面， 定时调度在192.168.250.207上
+2：评论性语料部署在 192.168.250.207 上面192.168.250.207上
+
+
+缺点：
+-----
+该统计API并没有根据rest_framework的model, serializers来标准化编写接口
