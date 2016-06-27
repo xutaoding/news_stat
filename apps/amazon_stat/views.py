@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # from django.shortcuts import render
+from collections import defaultdict
+
 from datetime import date
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,6 +11,7 @@ from models import NewsAnalysis, CrawlerNews
 from api import StatBase
 from api import AmazonNewsStat, QueryCatStat
 from api import CrawlerNewsStat
+from config import ORIGIN_CATEGORY as _NEWS_CATE
 
 
 class NewsBase(APIView):
@@ -107,11 +110,34 @@ class CrawlerNewsView(NewsBase):
         return Response(data)
 
 
+class CrawlerTotalNews(NewsBase):
+    model_class = CrawlerNews
+
+    @property
+    def news_categories(self):
+        categories = defaultdict(list)
+
+        for key, value in _NEWS_CATE.iteritems():
+            if value:
+                categories[value].append(key)
+        return categories
+
+    def get(self, request):
+        categories = self.news_categories
+        query_date = request.GET.get('date', self.default_date).replace('-', '')
+        data = {'dt': query_date}
+        print query_date
+
+        for news_cat, values in categories.iteritems():
+            queryset = self.model_class.objects.filter(d__lte=query_date, source__in=values)
+            data[news_cat] = queryset.count()
+        return Response(data=data)
+
+
 class NewsSourceView(NewsBase):
     model_class = CrawlerNews
 
     def get(self, request):
-        print 1000000000000
         data = CrawlerNewsStat(queryset=[]).get_news_source_count()
         print data
         return Response(data)

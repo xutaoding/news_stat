@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 # from django.shortcuts import render
 from rest_framework.views import APIView
@@ -19,9 +20,17 @@ class ViewBase(APIView):
         return datetime.now().strftime('%Y%m%d')
 
     def get(self, request):
+        # date: 表示根据给定日期来统计这天的总数, 默认rtype为1
+        # rtype: 2 表示统计之前所有到当前的总数， 与date无关
         query_date = request.GET.get('date', self.default_date)
+        rtype = request.GET.get('rtype', '1')
         query_params = query_date.replace('-', '')
-        queryset = self.model_class.objects.filter(ct__startswith=query_params)
+
+        if rtype == '1' or query_params:
+            queryset = self.model_class.objects.filter(ct__startswith=query_params)
+
+        if rtype == '2':
+            queryset = self.model_class.objects.filter()
         return Response({query_params: queryset.count()})
 
 
