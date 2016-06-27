@@ -40,6 +40,15 @@ class NewsBase(APIView):
                 'info': 'failure parameters: <%s>, expect: <%s>' % (' '.join(failure_params), ' '.join(expected))
             }
 
+    @property
+    def news_categories(self):
+        categories = defaultdict(list)
+
+        for key, value in _NEWS_CATE.iteritems():
+            if value:
+                categories[value].append(key)
+        return categories
+
 
 # Create your views here.
 class AmazonNewsStatView(NewsBase):
@@ -113,15 +122,6 @@ class CrawlerNewsView(NewsBase):
 class CrawlerTotalNews(NewsBase):
     model_class = CrawlerNews
 
-    @property
-    def news_categories(self):
-        categories = defaultdict(list)
-
-        for key, value in _NEWS_CATE.iteritems():
-            if value:
-                categories[value].append(key)
-        return categories
-
     def get(self, request):
         categories = self.news_categories
         query_date = request.GET.get('date', self.default_date).replace('-', '')
@@ -129,7 +129,7 @@ class CrawlerTotalNews(NewsBase):
         print query_date
 
         for news_cat, values in categories.iteritems():
-            queryset = self.model_class.objects.filter(d__lte=query_date, source__in=values)
+            queryset = self.model_class.objects.filter(d__lte=query_date + '235959', source__in=values)
             data[news_cat] = queryset.count()
         return Response(data=data)
 
@@ -141,3 +141,20 @@ class NewsSourceView(NewsBase):
         data = CrawlerNewsStat(queryset=[]).get_news_source_count()
         print data
         return Response(data)
+
+
+class AnalysisTotalNews(NewsBase):
+    """
+    统计分信后的新闻数据：从当天开始到之前的所有的历史数据
+    """
+    def get(self, request):
+        query_date = request.GET.get('date', self.default_date)
+        query_param = query_date.replace('-', '')
+        data = {'dt': query_param}
+        total_queryset = self.model_class.objects.filter(dt__lte=query_param + '235959')
+
+        for key, values in self.news_categories.items():
+            queryset = total_queryset(cat__in=values)
+            data[key] = queryset.count()
+        return Response(data=data)
+
