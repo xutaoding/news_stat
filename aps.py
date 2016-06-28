@@ -168,7 +168,7 @@ def count_with_corpus(query_date=None):
     all_corpus = {'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻',
                   'xuwqiu': u'雪球股票评论', 'guba': u'东方财富股吧股票评论', 'jobs': u'拉钩', 'comp': u'公司信息', }
     corpus_base = 'http://192.168.250.207:7900/api/corpus/{corpus}/data.json?date={date}'
-    corpus_history = 'http://192.168.250.207:7900/api/{corpus}/baidu/data.json?rtype=2'
+    corpus_history = 'http://192.168.250.207:7900/api/corpus/{corpus}/data.json?rtype=2&date={date}'
 
     for corpus in all_corpus:
         try:
@@ -178,7 +178,7 @@ def count_with_corpus(query_date=None):
             to_python = simplejson.loads(resp.content)
 
             # 各站点的评论性语料统计，在当天之前所有历史统计
-            history_resp = requests.get(corpus_history.format(corpus=corpus), timeout=60)
+            history_resp = requests.get(corpus_history.format(corpus=corpus, date=query_string), timeout=60)
             to_history = simplejson.loads(history_resp)
 
             if uid not in overall_uid:
@@ -247,16 +247,9 @@ def get_count_with_news_category(query_date=None):
 
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
-    if not args:
-        app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
-        app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
-        app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
-        app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
-        app.start()
-    else:
-        _date_range = get_date_range(*args)
-        for _query_date in _date_range:
-            # insert2mongo(_query_date)
-            get_count_with_news_category(_query_date)
-            logging.info('Date <{}> search success!'.format(_query_date))
+    app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
+    app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
+    app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
+    app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
+    app.start()
+
