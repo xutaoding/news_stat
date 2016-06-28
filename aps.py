@@ -99,7 +99,7 @@ def insert2mongo(query_date=None):
     overall_uid = {docs['uid'] for docs in collection.find({}, {'uid': 1})}
 
     try:
-        req = requests.get(url=request % query_string, timeout=30)
+        req = requests.get(url=request % query_string, timeout=60)
         to_python = simplejson.loads(req.content)
 
         for site_key, _docs in to_python.iteritems():
@@ -119,6 +119,39 @@ def insert2mongo(query_date=None):
     db.close()
 
 
+def count_news_before():
+    """统计新闻在抓取后且分析前各新闻的总数"""
+    host, port = '192.168.100.15', 27017
+    today = str(date.today() - timedelta(days=1))
+    url = 'http://54.223.52.50:8005/api/news/amazon/total/data.json?date=%s'
+    client = MongoClient(host, port)
+    collection = client.log.news_crawled_before
+
+    try:
+        history_query = {"dt": "2016-06-25"}
+        history_data = collection.find(history_query)
+
+        if history_data.count() != 1:
+            raise ValueError('历史数据 只有一条记录， 请检查条件: <%s %s %s %s>, <%s>' %
+                             (host, port, 'log', 'news_crawled_before', history_query))
+        else:
+            history_record = history_data[0]
+
+        req = requests.get(url % today, timeout=60)
+        to_python = simplejson.loads(req.content)
+
+        for key, value in to_python.items():
+            if key != 'dt':
+                to_python[key] = value + history_record[key]
+        else:
+            to_python['dt'] = today
+        collection.insert(to_python)
+    except Exception as e:
+        logging.info('Error (news crawled before): type <{}>, msg <{}>'.format(e.__class__, e))
+    else:
+        logging.info('\t<{}> query is success from amazon(news crawled before).'.format(today))
+
+
 def count_with_corpus(query_date=None):
     """
     Count comment crawled data from `eastmoney` guba, sogou weixin and so on
@@ -135,12 +168,18 @@ def count_with_corpus(query_date=None):
     all_corpus = {'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻',
                   'xuwqiu': u'雪球股票评论', 'guba': u'东方财富股吧股票评论', 'jobs': u'拉钩', 'comp': u'公司信息', }
     corpus_base = 'http://192.168.250.207:7900/api/corpus/{corpus}/data.json?date={date}'
+    corpus_history = 'http://192.168.250.207:7900/api/{corpus}/baidu/data.json?rtype=2'
 
     for corpus in all_corpus:
         try:
             uid = md5(corpus + query_string)
-            resp = requests.get(corpus_base.format(corpus=corpus, date=query_string), timeout=30)
+            # 每日各站点的评论性语料统计
+            resp = requests.get(corpus_base.format(corpus=corpus, date=query_string), timeout=60)
             to_python = simplejson.loads(resp.content)
+
+            # 各站点的评论性语料统计，在当天之前所有历史统计
+            history_resp = requests.get(corpus_history.format(corpus=corpus), timeout=60)
+            to_history = simplejson.loads(history_resp)
 
             if uid not in overall_uid:
                 key = query_string.replace('-', '')
@@ -148,7 +187,8 @@ def count_with_corpus(query_date=None):
                     'dt': query_string,
                     'uid': uid, 'crt': datetime.now(),
                     'count': to_python[key],
-                    'cat': all_corpus[corpus]
+                    'cat': all_corpus[corpus],
+                    'total_count': to_history[query_string.replace('-', '')]
                 }
                 collection.insert(data)
         except Exception as e:
@@ -180,7 +220,6 @@ def get_count_with_news_category(query_date=None):
     dt = today if not query_date else '%s-%s-%s' % (query_date[:4], query_date[4:6], query_date[6:])
 
     news_day_url = 'http://54.223.52.50:8005/api/news/amazon/origin/data.json?date={}'
-    news_total_url = 'http://54.223.52.50:8005/api/news/amazon/total/data.json'
     news_source_url = 'http://54.223.52.50:8005/api/news/amazon/source/data.json'
 
     try:
@@ -189,12 +228,6 @@ def get_count_with_news_category(query_date=None):
         to_python_day = simplejson.loads(response_news_day)
         to_python_day.update(dt=dt, dif=0, crt=datetime.now())
         collection.insert(to_python_day)
-
-        # 记录当天之前的所有新闻分类的总数， 且这些新闻是在分析之前
-        # response_news_total = requests.get(news_total_url, timeout=60*3).content
-        # to_python_total = simplejson.loads(response_news_total)
-        # to_python_total.update(dt=dt, dif=1, crt=datetime.now())
-        # collection.insert(to_python_total)
 
         # 记录所有新闻分类的来源总数
         response_news_source = requests.get(news_source_url, timeout=40).content
@@ -217,8 +250,9 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
         app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
-        app.add_job(count_with_corpus, trigger='cron', hour='0', minute='05', second='0', misfire_grace_time=5)
-        app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='10', second='0', misfire_grace_time=5)
+        app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
+        app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
+        app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
         app.start()
     else:
         _date_range = get_date_range(*args)
