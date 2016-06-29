@@ -247,9 +247,8 @@ def get_count_with_news_category(query_date=None):
 
 
 if __name__ == '__main__':
-    # app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
-    # app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
-    # app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
-    # app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
-    # app.start()
-    count_with_corpus()
+    app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
+    app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
+    app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
+    app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
+    app.start()
