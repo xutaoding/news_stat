@@ -179,7 +179,7 @@ def count_with_corpus(query_date=None):
 
             # 各站点的评论性语料统计，在当天之前所有历史统计
             history_resp = requests.get(corpus_history.format(corpus=corpus, date=query_string), timeout=60)
-            to_history = simplejson.loads(history_resp)
+            to_history = simplejson.loads(history_resp.content)
 
             if uid not in overall_uid:
                 key = query_string.replace('-', '')
@@ -194,7 +194,7 @@ def count_with_corpus(query_date=None):
         except Exception as e:
             logging.info('Insert mongo <{}> error: type <{}>, msg <{}>'.format(host, e.__class__, e))
         else:
-            logging.info('\t<{}> query is success from <{}> .'.format(query_date, host))
+            logging.info('\t<{}> query is success from <{}> .'.format(query_string, host))
     client.close()
 
 
@@ -247,9 +247,9 @@ def get_count_with_news_category(query_date=None):
 
 
 if __name__ == '__main__':
-    app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
-    app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
-    app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
-    app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
-    app.start()
-
+    # app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
+    # app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
+    # app.add_job(count_with_corpus, trigger='cron', hour='0', minute='5', second='0', misfire_grace_time=5)
+    # app.add_job(get_count_with_news_category, trigger='cron', hour='0', minute='8', second='0', misfire_grace_time=5)
+    # app.start()
+    count_with_corpus()
