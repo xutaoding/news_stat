@@ -23,3 +23,9 @@ DEV_CORPUS_TABLES = {
     'baidu': 'baidu',
     'comp_info': 'comp_info',
 }
+
+# Dev A Stock mongo settings
+DEV_A_POST_HOST = '122.144.134.95'
+DEV_A_POST_PORT = 27017
+DEV_A_POST_DB = 'news'
+DEV_A_POST_TABLE = 'announcement'
