@@ -19,3 +19,6 @@ class PostAModel(DynamicDocument):
         'db_alias': 'sh_mongo95',
         'collection': A_POST_TABLE
     }
+
+    def __unicode__(self):
+        return u'%s' % self.title
