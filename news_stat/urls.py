@@ -25,5 +25,6 @@ urlpatterns = [
     # So far, We don't need to `intranet`
     url(r'^api/news/', include('apps.intranet_stat.urls', namespace='intranet')),
 
-    url(r'api/corpus/', include('apps.corpus.urls', namespace='corpus')),
+    url(r'^api/corpus/', include('apps.corpus.urls', namespace='corpus')),
+    url(r'^api/cron/', include('apps.cron_crawlers.urls', namespace='cron_crawlers')),
 ]

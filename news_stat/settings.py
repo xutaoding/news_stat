@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from config import NEWS_HOST, NEWS_PORT, NEWS_DB, NEWS_TABLE, CRAWLER_NEWS_TABLE
-from config import LOG_HOST, LOG_PORT, LOG_DB, LOG_TABLE
-from config import CORPUS_HOST, CORPUS_DB, CORPUS_PORT, CORPUS_TABLES
+from config import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'v%dv4js=%_fz9y^16o56um8qm533fw289jvpp6(y&74)14v$jo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -44,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'apps.amazon_stat',
     'apps.intranet_stat',
+    'apps.cron_crawlers'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -137,4 +136,15 @@ REST_FRAMEWORK = {
         # If setting `DEBUG` is False, then Browser layout is awful
         # 'rest_framework.renderers.BrowsableAPIRenderer',
     )
+}
+
+# Celery Configuration
+from datetime import timedelta
+
+CELERYBEAT_SCHEDULE = {
+    'add-every-30-seconds': {
+        'task': 'apps.cron_crawlers.tasks.add',
+        'schedule': timedelta(seconds=30),
+        'args': (16, 32),
+    }
 }
