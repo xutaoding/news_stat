@@ -8,3 +8,4 @@ tld==0.7.6
 simplejson==3.8.1
 apscheduler==3.1.0
 requests==2.9.1
+celery==3.1.23
