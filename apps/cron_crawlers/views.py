@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from django.utils.timezone import datetime
 from django.shortcuts import render
 from django.http.response import HttpResponse
@@ -43,7 +44,8 @@ class PostInfoView(APIView):
             need_docs.update(_id=str(post_inst.id), title=post_inst.title)
             required_pdf.append(need_docs)
         # return HttpResponse(simplejson.dumps(required_pdf))
-        return Response(required_pdf)  # rest_error, why
+        # return Response(required_pdf)  # rest_error, why
+        return Response(json.dumps(required_pdf))  
 
 
 class SharesTianjinView(APIView):

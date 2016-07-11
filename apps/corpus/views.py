@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime
 # from django.shortcuts import render
 from rest_framework.views import APIView
@@ -31,7 +32,8 @@ class ViewBase(APIView):
 
         if rtype == '2' and query_date:
             queryset = self.model_class.objects.filter(ct__lte=query_params + '235959')
-        return Response({query_params: queryset.count()})
+        data = json.dumps({query_params: queryset.count()})
+        return Response(data=data)
 
 
 class ViewBaidu(ViewBase):
