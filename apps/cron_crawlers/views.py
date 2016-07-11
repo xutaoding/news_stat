@@ -5,9 +5,9 @@ from django.http.response import HttpResponse
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-import simplejson
 
 from .models import PostAModel
+import tasks
 
 
 # Create your views here.
@@ -44,3 +44,12 @@ class PostInfoView(APIView):
             required_pdf.append(need_docs)
         # return HttpResponse(simplejson.dumps(required_pdf))
         return Response(required_pdf)  # rest_error, why
+
+
+class SharesTianjinView(APIView):
+    """ 异步执行抓取， 请求一次浏览器可以实现抓取 """
+
+    def get(self, request):
+        tasks.sync_shares_tianjin.delay()
+        return Response(data='抓取已在进行， 请耐心等待邮件!<br /><h2>注意：请求一次即可， 请勿多次请求</h2>')
+

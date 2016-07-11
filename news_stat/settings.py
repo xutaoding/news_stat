@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'v%dv4js=%_fz9y^16o56um8qm533fw289jvpp6(y&74)14v$jo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -132,6 +132,7 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.StaticHTMLRenderer',
 
         # If setting `DEBUG` is False, then Browser layout is awful
         # 'rest_framework.renderers.BrowsableAPIRenderer',
