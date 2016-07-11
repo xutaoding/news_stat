@@ -45,7 +45,7 @@ class PostInfoView(APIView):
             required_pdf.append(need_docs)
         # return HttpResponse(simplejson.dumps(required_pdf))
         # return Response(required_pdf)  # rest_error, why
-        return Response(json.dumps(required_pdf))  
+        return Response(json.dumps(required_pdf))
 
 
 class SharesTianjinView(APIView):
