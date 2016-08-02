@@ -27,4 +27,7 @@ urlpatterns = [
 
     url(r'^api/corpus/', include('apps.corpus.urls', namespace='corpus')),
     url(r'^api/cron/', include('apps.cron_crawlers.urls', namespace='cron_crawlers')),
+
+    # Discard
+    url(r'^api/crawler/', include('apps.crawlers_api.urls', namespace='crawlers_api')),
 ]

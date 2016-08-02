@@ -12,7 +12,7 @@ VIRTUALENV_COMMAND=" activate venv2711"                     # virtual env comman
 LOG_FILE_PATH=/opt/interface/log/gunicorn_log.log           # gunicorn log path
 GUNICORN_PATH=/root/.pyenv/versions/2.7.11/envs/venv2711/bin/gunicorn       # gunicorn location
 
-echo "Starting $NAME as `who am i`"
+echo "Starting $NAME as 'who am i'"
 
 # Activate the virtual environment
 cd $DJANGODIR
