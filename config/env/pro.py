@@ -22,6 +22,7 @@ PRO_CORPUS_TABLES = {
     'zhihu': 'zhihu',
     'baidu': 'baidu',
     'comp_info': 'comp_info',
+    'patent': 'patent',
 }
 
 # Pro A Stock mongo settings
@@ -31,3 +32,19 @@ PRO_A_POST_DB = 'news'
 PRO_A_POST_TABLE = 'announcement'
 
 PRO_SCRAPYD_HOST = 'http://localhost:6800'
+
+# count SH env
+PRO_SH_HOST = '192.168.251.95'
+PRO_SH_PORT = 27017
+PRO_SH_ADA_DB = 'ada'
+PRO_SH_NEWS_DB = 'news'
+PRO_SH_TABLES = {
+    'annou_us': 'announcement_us',
+    'annou_hk': 'announcement_hk',
+    'annou_hk_chz': 'announcement_hk_chz',
+    'annou_otc': 'announcement_otc',
+    'report': 'research_report_def',
+    'execu': 'base_executive_regulation',
+    'margin': 'base_margin_trading',
+    'trade': 'base_block_trade',
+}
