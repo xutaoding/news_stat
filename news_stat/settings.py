@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'v%dv4js=%_fz9y^16o56um8qm533fw289jvpp6(y&74)14v$jo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'apps.amazon_stat',
     'apps.intranet_stat',
-    'apps.cron_crawlers'
+    'apps.cron_crawlers',
+    'apps.corpus',
 ]
 
 MIDDLEWARE_CLASSES = [
