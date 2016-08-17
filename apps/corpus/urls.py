@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^comp/data.json$', views.ViewCompInfo.as_view()),
 
     url(r'^patent/data.json$', views.PatentViews.as_view()),
-    url(r'^gibv/data.json$', views.BigvViews.as_view()),
+    url(r'^bigv/data.json$', views.BigvViews.as_view()),
     url(r'^etffund/data.json$', views.ETFfundViews.as_view()),
     url(r'^innotree/data.json$', views.InnotreeViews.as_view()),
 
