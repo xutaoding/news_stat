@@ -165,8 +165,13 @@ def count_with_corpus(query_date=None):
     query_string = today if query_date is None else query_date
     overall_uid = {docs['uid'] for docs in collection.find({}, {'uid': 1})}
 
-    all_corpus = {'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻',
-                  'xuwqiu': u'雪球股票评论', 'guba': u'东方财富股吧股票评论', 'jobs': u'拉钩', 'comp': u'公司信息', }
+    all_corpus = {
+        'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻', 'xuwqiu': u'雪球股票评论',
+        'guba': u'东方财富股吧股票评论', 'jobs': u'拉钩', 'comp': u'公司信息',
+        'patent': u'专利数据', 'bigv': u'雪球大V', 'etffund': u'ETF基金', 'innotree': u'因果树',
+        'us': u'美股公告', 'hk': u'港股英文公告', 'hk_chz': u'港股中文公告', 'otc': u'新三板公告', 'report': u'研报',
+        'execu': u'高管增减持', 'margin': u'融资融券 ', 'trade': u'大宗交易'
+    }
     corpus_base = 'http://192.168.250.207:7900/api/corpus/{corpus}/data.json?date={date}'
     corpus_history = 'http://192.168.250.207:7900/api/corpus/{corpus}/data.json?rtype=2&date={date}'
 
