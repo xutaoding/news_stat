@@ -251,6 +251,27 @@ def get_count_with_news_category(query_date=None):
     client.close()
 
 
+def corpus_amazon():
+    """ 统计北京亚马逊相关预料数据 """
+    client = MongoClient('192.168.100.15', 27017)
+    coll = client['log']['corpus_stat']
+    corpus_api = 'http://54.223.52.50:8005/api/news/amazon/wencai/data.json?date={date}'
+
+    default_date = str(date.today() - timedelta(days=1))
+
+    try:
+        r = requests.get(corpus_api.format(date=default_date), timeout=60)
+        response = r.content
+        to_python = simplejson.loads(response)
+
+        to_python['uid'] = md5('wencai' + default_date)
+        to_python['crt'] = datetime.now()
+        to_python['cat'] = u'知识图谱_问财'
+        coll.insert(to_python)
+    except Exception as e:
+        logging.info('corpus amazon error: typ <{}>, msg <>'.format(e.__class__, e))
+    client.close()
+
 if __name__ == '__main__':
     app.add_job(insert2mongo, trigger='cron', hour='0', minute='0', second='0', misfire_grace_time=5)
     app.add_job(count_news_before, trigger='cron', hour='0', minute='2', second='0', misfire_grace_time=5)
