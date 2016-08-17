@@ -7,6 +7,7 @@ from views import CrawlerNewsView
 from views import NewsSourceView
 from views import CrawlerTotalNews
 from views import AnalysisTotalNews
+from views import WencaiView
 
 urlpatterns = [
     url('^amazon/stat/data.json$', view=AmazonNewsStatView.as_view(), name='amazon_stat'),
@@ -18,5 +19,8 @@ urlpatterns = [
 
     # 统计分析后的新闻总数（当天到之前的历史记录）
     url(r'^amazon/analysis_after/data.json$', view=AnalysisTotalNews.as_view(), name='amazon_analysis_after'),
+
+    # 统计知识图谱抓取语料(问财)
+    url(r'^amazon/wencai/data.json$', view=WencaiView.as_view(), name='wencai')
 ]
 

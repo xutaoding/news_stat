@@ -52,6 +52,8 @@ start:
 
 说明：各新闻分类的站点源的数目统计
 
+7: http://54.223.52.50:8005/api/news/amazon/wencai/data.json?date=2016-08-17
+说明：统计关于知识图谱抓取的数据(shuqing)
 
 缺点：
 -----

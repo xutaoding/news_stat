@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # from django.shortcuts import render
+import re
+import json
 from collections import defaultdict
 
 from datetime import date
@@ -7,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from eggs import get_date_range
-from models import NewsAnalysis, CrawlerNews
+from models import NewsAnalysis, CrawlerNews, WencaiModel
 from api import StatBase
 from api import AmazonNewsStat, QueryCatStat
 from api import CrawlerNewsStat
@@ -157,4 +159,25 @@ class AnalysisTotalNews(NewsBase):
             queryset = total_queryset(cat__in=values)
             data[key] = queryset.count()
         return Response(data=data)
+
+
+class WencaiView(NewsBase):
+    """  统计抓取问财数据， 关于知识图谱 """
+
+    model_class = WencaiModel
+
+    def get(self, request):
+        query_date = request.GET.get('date', self.default_date)
+        query_param = query_date.replace('-', '')
+
+        if re.compile(r'\d{4}-\d\d-\d\d').search(query_date) is None:
+            return Response("{'error': 'params <date> error'}")
+
+        data = {
+            'dt': query_date,
+            'total_count': self.model_class.objects.filter().count(),
+            'count': self.model_class.objects.filter(ct__startswith=query_param).count()
+        }
+        return Response(data=data)
+
 
