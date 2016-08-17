@@ -23,6 +23,9 @@ PRO_CORPUS_TABLES = {
     'baidu': 'baidu',
     'comp_info': 'comp_info',
     'patent': 'patent',
+    'bigv': 'bigv_cubes',
+    'etfund': 'etfund',
+    'innotree': 'innotree',
 }
 
 # Pro A Stock mongo settings

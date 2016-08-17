@@ -18,7 +18,7 @@ from .env.pro import PRO_SH_HOST, PRO_SH_PORT, PRO_SH_ADA_DB, PRO_SH_NEWS_DB, PR
 from .base.name import SITE_NAME_MAP, STOCK_CAT, ORIGIN_CATEGORY, NEWS_SOURCE
 
 _PRO_IP = []  # Development Environment
-_DEV_IP = ['192.168.1.22', '192.168.100.20', ]  # Test Environment
+_DEV_IP = ['192.168.1.22', '192.168.100.20', '192.168.250.207']  # Test Environment
 
 if deploy_ip in _DEV_IP:
     NEWS_HOST = DEV_NEWS_HOST
