@@ -5,6 +5,9 @@ PRO_NEWS_DB = 'news'
 PRO_NEWS_TABLE = 'hotnews_analyse'
 PRO_CRAWLER_NEWS_TABLE = 'crawler_news'
 
+PRO_GRAPH_CRAWLER_DB = 'graph'
+PRO_GRAPH_CRAWLER_TABLE = 'nlp_event'
+
 # Pro Log mongo settings
 PRO_LOG_HOST = '192.168.100.15'
 PRO_LOG_PORT = 27017

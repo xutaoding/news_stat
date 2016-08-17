@@ -5,6 +5,9 @@ DEV_NEWS_DB = 'news'
 DEV_NEWS_TABLE = 'hotnews_analyse'
 DEV_CRAWLER_NEWS_TABLE = 'crawler_news'
 
+DEV_GRAPH_CRAWLER_DB = 'graph'
+DEV_GRAPH_CRAWLER_TABLE = 'nlp_event'
+
 # Dev Log mongo settings
 DEV_LOG_HOST = '192.168.100.20'
 DEV_LOG_PORT = 27017
