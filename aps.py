@@ -35,7 +35,7 @@ jobstores = {
 
 # using ThreadPoolExecutor as default other than ProcessPoolExecutor(not work) to executors
 executors = {
-    'default': ThreadPoolExecutor(2),
+    'default': ThreadPoolExecutor(10),
 }
 
 job_defaults = {
@@ -166,7 +166,7 @@ def count_with_corpus(query_date=None):
     overall_uid = {docs['uid'] for docs in collection.find({}, {'uid': 1})}
 
     all_corpus = {
-        'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻', 'xuwqiu': u'雪球股票评论',
+        'weixin': u'微信文章', 'zhihu': u'知乎股票评论', 'baidu': u'百度新闻', 'xueqiu': u'雪球股票评论',
         'guba': u'东方财富股吧股票评论', 'jobs': u'拉钩', 'comp': u'公司信息',
         'patent': u'专利数据', 'bigv': u'雪球大V', 'etffund': u'ETF基金', 'innotree': u'因果树',
         'us': u'美股公告', 'hk': u'港股英文公告', 'hk_chz': u'港股中文公告', 'otc': u'新三板公告', 'report': u'研报',
