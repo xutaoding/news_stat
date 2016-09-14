@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 import os
+from math import log10
 from os.path import dirname, abspath
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from collections import defaultdict
 
 from tld import get_tld
@@ -174,11 +175,14 @@ def get_news_count():
     client = MongoClient(['10.0.250.10'], 27017)
     collection = client['news']['crawler_news']
 
+    from_day = date.today() - timedelta(days=1)
+    to_day = date.today() - timedelta(days=7)
+
     excludes = ['us', '港股新闻', 'hk']
     fields = {'url': 1, 'source': 1}
     query = {'date': {
-        '$lte': str(date.today() - timedelta(days=1)).replace('-', '') + '000000',
-        '$gte': str(date.today() - timedelta(days=7)).replace('-', '') + '235959'
+        '$lte': str(from_day).replace('-', '') + '000000',
+        '$gte': str(to_day).replace('-', '') + '235959'
     }}
     print query
 
@@ -197,13 +201,13 @@ def get_news_count():
             pass
 
     client.close()
-    return web_site
+    return web_site, from_day, to_day
 
 
 def get_web_rank():
     result = []
-    web_site = get_news_count()
-    total_count = sum(web_site.values())
+    web_site, from_day, to_day = get_news_count()
+    max_count = max(web_site.values())
 
     client = MongoClient(['10.0.250.10'], 27017)
     collection = client['news']['webrank']
@@ -212,14 +216,20 @@ def get_web_rank():
         map_value = SITE_NAME_MAP.get(key, ())
 
         if map_value:
-            result.append(map_value[:-1] + ('%.4f' % (map_value[-1] * val / total_count),))
+            result.append(map_value[:-1] + ('%.4f' % (map_value[-1] * val / max_count),))
 
-    data = {'data': sorted(result, key=lambda it: it[-1], reverse=True)}
+    data = {
+        'data': sorted(result, key=lambda it: it[-1], reverse=True),
+        'crt': datetime.now(),
+        'from': str(from_day),
+        'to': str(to_day)
+    }
     collection.insert(data)
     client.close()
 
 
 if __name__ == '__main__':
+    # app.add_job(get_web_rank, trigger='cron', hour='9', minute='30')
     app.add_job(get_web_rank, trigger='cron', hour='9')
     app.start()
 
