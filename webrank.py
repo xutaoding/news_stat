@@ -1,11 +1,44 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+from os.path import dirname, abspath
 from datetime import date, timedelta
 from collections import defaultdict
 
 from tld import get_tld
 from pymongo import MongoClient
+
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
+
+
+def create_sqlite():
+    sqlite_path = dirname(abspath(__file__))
+    for sql_path in os.listdir(sqlite_path):
+        if sql_path.endswith('.db'):
+            os.remove(os.path.join(sqlite_path, sql_path))
+
+create_sqlite()
+
+
+jobstores = {
+    'default': SQLAlchemyJobStore(url='sqlite:///jobs.db')
+}
+
+# using ThreadPoolExecutor as default other than ProcessPoolExecutor(not work) to executors
+executors = {
+    'default': ThreadPoolExecutor(4),
+    # 'default': ProcessPoolExecutor(4),
+}
+
+job_defaults = {
+    'coalesce': False,
+    'max_instances': 1
+}
+
+app = BlockingScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
 
 SITE_NAME_MAP = {
     '163': ('网易财经', 'http://money.163.com/', 1.0),
@@ -172,18 +205,23 @@ def get_web_rank():
     web_site = get_news_count()
     total_count = sum(web_site.values())
 
+    client = MongoClient(['10.0.250.10'], 27017)
+    collection = client['news']['webrank']
+
     for key, val in web_site.iteritems():
         map_value = SITE_NAME_MAP.get(key, ())
 
         if map_value:
             result.append(map_value[:-1] + ('%.4f' % (map_value[-1] * val / total_count),))
 
-    return sorted(result, key=lambda it: it[-1], reverse=True)
+    data = {'data': sorted(result, key=lambda it: it[-1], reverse=True)}
+    collection.insert(data)
+    client.close()
 
 
 if __name__ == '__main__':
-    for item in get_web_rank():
-        print item
+    app.add_job(get_web_rank, trigger='cron', hour='9')
+    app.start()
 
 
 
