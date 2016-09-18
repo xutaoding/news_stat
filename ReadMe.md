@@ -58,6 +58,7 @@ correct:/opt/interface/uwsgi/src/uwsgi-2.0.12/uwsgi --http :8005 --chdir /opt/in
 4：所属应用：news_stat/apps/amazon_stat
 
 二、内网根据需求的相关抓取数据的统计接口
+=====================================
 接口说明：
 --------
 1：http://192.168.250.207:7900/api/corpus/{corpus}/data.json?date={date}
@@ -86,8 +87,8 @@ correct:/opt/interface/uwsgi/src/uwsgi-2.0.12/uwsgi --http :8005 --chdir /opt/in
 -----
 该统计API并没有根据rest_framework的model, serializers来标准化编写接口
 
-三：新闻网站排名：
-
+三：新闻网站排名(webrank)：
+==================
 说明：主要是根据news_spiders项目中所用到的所有财经类网站，需要将这些网站进行一个排名，写入54.223.37.5数据库
 
 程序路径：news_stat/webrank.py
